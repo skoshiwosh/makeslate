@@ -8,7 +8,7 @@ slater.py
 - python script that generates slate image file
 - uses Python 2.7 and PySide2, python wrapper around Qt5
 - consists of 2 QtWidget classes, Slater and SlaterWin 
-- user inputs slate data and thumbnail either directly within Slater widget or from SlaterWin or using environment settings 
+- user inputs data and thumbnail either directly within Slater or from SlaterWin or using environment settings 
 - Slater widget is converted to QPixMap using grab method and saved to designated image file
 
 slater.sh
