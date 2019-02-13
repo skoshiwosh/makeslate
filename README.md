@@ -17,6 +17,14 @@ slater.sh
 - contains commented out environment variables: SHOW, SHOT and ARTIST
 - if uncommented, these will initialize corresponding slate entries within slater.py classes
 
+bgslate.png
+- background image used by slater (that I modified from Billy Brook's original post)
+- if you use this for production then replace studio logo with yours
+
+slate_thumbnail.jpg
+- this is a stand-in thumbnail image I used for development 
+- I cropped this from image attached to Billy's post 
+
 slaterUI_init.png
 - screen shot of Slater and SlaterWin as displayed when slater.py is initially launched
 
