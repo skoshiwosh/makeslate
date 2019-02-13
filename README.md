@@ -25,6 +25,9 @@ slate_thumbnail.jpg
 - this is a stand-in thumbnail image I used for development 
 - I cropped this from image attached to Billy's post 
 
+running_slater.pdf
+- instructions on how to run slater.py
+
 slaterUI_init.png
 - screen shot of Slater and SlaterWin as displayed when slater.py is initially launched
 
