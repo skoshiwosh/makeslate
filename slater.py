@@ -33,10 +33,9 @@ if sys.platform == "win32":
 else:
     USERNAME = os.getenv("USER")
 
-# replace these hard-coded file paths with appropriate to facility
-PROGPATH = "/Users/suzanneberger/Documents/dev/slater"
+# replace with appropriate to facilities packaging/release system
+PROGPATH = os.path.dirname(os.path.abspath(sys.argv[0]))
 BGSLATE = os.path.join(PROGPATH,"bgslate.png")
-
 
 #########################################################
 # Slater
