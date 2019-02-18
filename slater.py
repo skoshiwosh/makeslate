@@ -34,8 +34,9 @@ else:
     USERNAME = os.getenv("USER")
 
 # replace with appropriate to facilities packaging/release system
-PROGPATH = os.path.dirname(os.path.abspath(sys.argv[0]))
+PROGPATH = os.path.realpath(os.path.dirname(__file__))
 BGSLATE = os.path.join(PROGPATH,"bgslate.png")
+
 
 #########################################################
 # Slater
@@ -179,61 +180,92 @@ class SlaterWin(QtWidgets.QWidget):
     
         self.setStyleSheet("QPushButton {color: black; min-width: 100px; min-height: 35px;}")
         
-        # create show title, shot and artist labels and lineEdits for input into Slater widget
-        self.show_label = QtWidgets.QLabel("Show: ")
+        # create show title, shot and artist labels and lineEdits placed on top for input into Slater widget
+        self.show_label = QtWidgets.QLabel(" Show: ")
         self.show_lineEdit = QtWidgets.QLineEdit()
         if self.movie:
             self.show_lineEdit.setText(self.movie)
         
-        self.shot_label = QtWidgets.QLabel("Shot: ")
+        self.shot_label = QtWidgets.QLabel(" Shot: ")
         self.shot_lineEdit = QtWidgets.QLineEdit()
         if self.shot:
             self.shot_lineEdit.setText(self.shot)
         
-        self.artist_label = QtWidgets.QLabel("Artist: ")
+        self.artist_label = QtWidgets.QLabel(" Artist: ")
         self.artist_lineEdit = QtWidgets.QLineEdit(self.artist)
         
+        self.date_label = QtWidgets.QLabel(" Date: ")
+        self.date_lineEdit = QtWidgets.QLineEdit(str(date.today()))
         
         self.thumbnail_button = QtWidgets.QPushButton("Load Thumbnail")
-        self.save_button = QtWidgets.QPushButton("Save Slate")
+        self.update_button = QtWidgets.QPushButton("Update Slate")
         
-        slate_input_layout = QtWidgets.QHBoxLayout()
-        slate_input_layout.addWidget(self.show_label)
-        slate_input_layout.addWidget(self.show_lineEdit)
-        slate_input_layout.addWidget(self.shot_label)
-        slate_input_layout.addWidget(self.shot_lineEdit)
-        slate_input_layout.addWidget(self.artist_label)
-        slate_input_layout.addWidget(self.artist_lineEdit)
-        slate_input_layout.addSpacing(40)
-        slate_input_layout.addWidget(self.thumbnail_button)
-        slate_input_layout.addWidget(self.save_button)
+        slate_top_layout = QtWidgets.QHBoxLayout()
+        slate_top_layout.addWidget(self.show_label)
+        slate_top_layout.addWidget(self.show_lineEdit)
+        slate_top_layout.addWidget(self.shot_label)
+        slate_top_layout.addWidget(self.shot_lineEdit)
+        slate_top_layout.addWidget(self.artist_label)
+        slate_top_layout.addWidget(self.artist_lineEdit)
+        slate_top_layout.addWidget(self.date_label)
+        slate_top_layout.addWidget(self.date_lineEdit)
+        slate_top_layout.addSpacing(20)
+        slate_top_layout.addWidget(self.update_button)
+        slate_top_layout.addWidget(self.thumbnail_button)
+
+        # create widgets and layout to be placed in middle of window
+
+        self.filename_label = QtWidgets.QLabel(" Filename: ")
+        self.filename_lineEdit = QtWidgets.QLineEdit()
+        self.filename_lineEdit.setMinimumWidth(260)
+        self.framerange_label = QtWidgets.QLabel(" Framerange: ")
+        self.framerange_lineEdit = QtWidgets.QLineEdit()
+        self.notes_label = QtWidgets.QLabel(" Notes: ")
+        self.notes_lineEdit = QtWidgets.QLineEdit()
+        self.notes_lineEdit.setMinimumWidth(600)
+
+        slate_middle_layout = QtWidgets.QHBoxLayout()
+        slate_middle_layout.addWidget(self.filename_label)
+        slate_middle_layout.addWidget(self.filename_lineEdit)
+        slate_middle_layout.addWidget(self.framerange_label)
+        slate_middle_layout.addWidget(self.framerange_lineEdit)
+        slate_middle_layout.addWidget(self.notes_label)
+        slate_middle_layout.addWidget(self.notes_lineEdit)
 
         # create widgets and layout to be placed at bottom of window
-        status_label = QtWidgets.QLabel("Status: ")
+        status_label = QtWidgets.QLabel(" Status: ")
         self.status_lineEdit = QtWidgets.QLineEdit()
-        self.status_lineEdit.setMinimumWidth(850)
+        self.status_lineEdit.setMinimumWidth(750)
         self.status_lineEdit.setReadOnly(True)
+        self.save_button = QtWidgets.QPushButton("Save Slate")
         self.close_button = QtWidgets.QPushButton("Close")
         
         slate_bottom_layout = QtWidgets.QHBoxLayout()
         slate_bottom_layout.addWidget(status_label)
         slate_bottom_layout.addWidget(self.status_lineEdit)
         slate_bottom_layout.addStretch()
+        slate_bottom_layout.addWidget(self.save_button)
         slate_bottom_layout.addWidget(self.close_button)
 
         # add layouts to overall window layout
         slatewin_layout = QtWidgets.QVBoxLayout()
-        slatewin_layout.addLayout(slate_input_layout)
+        slatewin_layout.addLayout(slate_top_layout)
+        slatewin_layout.addLayout(slate_middle_layout)
         slatewin_layout.addLayout(slate_bottom_layout)
         self.setLayout(slatewin_layout)
         
         # connect signal to slots for updating slate
         self.thumbnail_button.clicked.connect(self.loadthumb)
+        self.update_button.clicked.connect(self.update_all)
         self.save_button.clicked.connect(self.saveslate)
         self.close_button.clicked.connect(self.close)
         self.show_lineEdit.returnPressed.connect(self.on_showEdit)
         self.shot_lineEdit.returnPressed.connect(self.on_shotEdit)
         self.artist_lineEdit.returnPressed.connect(self.on_artistEdit)
+        self.date_lineEdit.returnPressed.connect(self.on_dateEdit)
+        self.filename_lineEdit.returnPressed.connect(self.on_filenameEdit)
+        self.framerange_lineEdit.returnPressed.connect(self.on_framerangeEdit)
+        self.notes_lineEdit.returnPressed.connect(self.on_notesEdit)
 
         self.show()
         self.slateframe = Slater(movie=self.movie, shot=self.shot, artist=self.artist)
@@ -253,7 +285,17 @@ class SlaterWin(QtWidgets.QWidget):
                                                           PROGPATH,
                                                           "Image files (*.jpg *.png *.tif)")[0]
         self.slateframe.set_thumbnail(thumbfile)
-        self.status_lineEdit.setText("Loaded Thumbnail Image from File: %s" % thumbfile)
+        self.status_lineEdit.setText("Loaded Thumbnail from File: %s" % thumbfile)
+
+    def update_all(self):
+        """Update Slater with all entries by calling all slots connected to entry events"""
+        self.on_showEdit()
+        self.on_shotEdit()
+        self.on_artistEdit()
+        self.on_dateEdit()
+        self.on_filenameEdit()
+        self.on_framerangeEdit()
+        self.on_notesEdit()
 
     def saveslate(self):
         this_slate = self.slateframe.grab()
@@ -261,7 +303,7 @@ class SlaterWin(QtWidgets.QWidget):
                                                    PROGPATH,
                                                    "Images (*.jpg *.png *.tif)")[0]
         this_slate.save(slatefile)
-        self.status_lineEdit.setText("Saved Slate Image to File: %s" % slatefile)
+        self.status_lineEdit.setText("Saved Slate to File: %s" % slatefile)
 
     def on_showEdit(self):
         """Set new movie title in Slater widget's movie_label."""
@@ -277,6 +319,22 @@ class SlaterWin(QtWidgets.QWidget):
         """Set new artist name in Slater widget's artist_lineEdit."""
         self.artist = self.artist_lineEdit.text()
         self.slateframe.artist_lineEdit.setText(self.artist)
+
+    def on_dateEdit(self):
+        """Set new date in Slater widget's date_lineEdit"""
+        self.slateframe.date_lineEdit.setText(self.date_lineEdit.text())
+
+    def on_filenameEdit(self):
+        """Set filename in Slater widget's filename_lineEdit"""
+        self.slateframe.filename_lineEdit.setText(self.filename_lineEdit.text())
+
+    def on_framerangeEdit(self):
+        """Set frame range in Slater widget's framerange_lineEdit"""
+        self.slateframe.framerange_lineEdit.setText(self.framerange_lineEdit.text())
+
+    def on_notesEdit(self):
+        """Set notes in Slater widget's notes_lineEdit"""
+        self.slateframe.notes_lineEdit.setText(self.notes_lineEdit.text())
 
 
 ############################################################
